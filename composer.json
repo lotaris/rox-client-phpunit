@@ -1,6 +1,23 @@
 {
 	"name": "lotaris/rox-client-phpunit",
-	"description": "PHPunit client for submitting test results to ROX center.",
+	"description": "PHPUnit client for submitting test results to ROX Center.",
+	"keywords": ["rox", "phpunit", "test", "analytics"],
+	"homepage": "http://github.com/lotaris/rox-client-phpunit",
+	"license": "MIT",
+	"authors": [
+		{
+			"name": "Francois Vessaz",
+			"email": "francois.vessaz@lotaris.com",
+			"homepage": "http://www.lotaris.com",
+			"role": "Developer"
+		},
+		{
+			"name": "Simon Oulevey",
+			"email": "simon.oulevey@lotaris.com",
+			"homepage": "http://www.lotaris.com",
+			"role": "Developer"
+		}
+	],
 	"require": {
 		"php": ">=5.3",
 		"phpunit/phpunit": "3.7.*",
