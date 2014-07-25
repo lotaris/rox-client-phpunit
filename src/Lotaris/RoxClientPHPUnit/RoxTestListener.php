@@ -365,7 +365,10 @@ class RoxTestListener implements \PHPUnit_Framework_TestListener {
 						$this->currentTest['p'] = true;
 
 						// set flags
-						$this->currentTest['f'] = $annotation->getFlags();
+						$flag = $annotation->getFlags();
+						if ($flag > 0){
+							$this->currentTest['f'] = $flag;
+						}
 
 						// set category
 						$userProposedCategory = $annotation->getCategory();
