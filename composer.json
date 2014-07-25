@@ -1,6 +1,7 @@
 {
 	"name": "lotaris/rox-client-phpunit",
 	"description": "PHPunit client for submitting test results to ROX center.",
+	"version": "0.1.0",
 	"require": {
 		"php": ">=5.3",
     "phpunit/phpunit": "3.7.*",
