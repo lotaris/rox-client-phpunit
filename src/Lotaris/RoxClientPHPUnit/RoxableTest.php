@@ -2,8 +2,6 @@
 
 namespace Lotaris\RoxClientPHPUnit;
 
-use Lotaris\RoxClientPHPUnit\RoxClientException;
-
 /**
  * Annotation to make a test "Roxable", i.e., to send its results to Rox center.
  * http://php-and-symfony.matthiasnoback.nl/2011/12/symfony2-doctrine-common-creating-powerful-annotations/

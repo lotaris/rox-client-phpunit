@@ -8,9 +8,6 @@ use Symfony\Component\Yaml\Parser;
 use Symfony\Component\Yaml\Exception\ParseException;
 use Guzzle\Http\Client;
 
-use Lotaris\RoxClientPHPUnit\RoxableTest;
-use Lotaris\RoxClientPHPUnit\RoxClientException;
-
 /**
  * This TestListener sends results to ROX Center at the end of each test suite.
  *
