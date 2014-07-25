@@ -12,7 +12,7 @@
 	},
 	"autoload": {
 		"psr-0": {
-			"Lotaris\\RoxClientPHPUnit": "src/Lotaris/RoxClientPHPUnit/"
+			"Lotaris": "src/"
 		}
 	}
 }
