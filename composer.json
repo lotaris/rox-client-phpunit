@@ -1,0 +1,13 @@
+{
+	"name": "lotaris/rox-client-phpunit",
+	"description": "PHPunit client for submitting test results to ROX center.",
+	"require": {
+		"php": ">=5.3",
+    "phpunit/phpunit": "3.7.*",
+		"guzzle/guzzle": "~3.7",
+		"doctrine/annotations": "~1.2",
+		"symfony/yaml": "~2.5",
+		"rhumsaa/uuid": "~2.7",
+		"camspiers/json-pretty": "~1.0"
+	}
+}
