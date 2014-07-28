@@ -186,6 +186,7 @@ class RoxTestListener implements \PHPUnit_Framework_TestListener {
 					}
 				}
 			}
+			var_dump($this->cache);
 
 			// init class properties
 			$this->testSuiteStartTime = intval(microtime(true) * 1000); // UNIX timestamp in ms
