@@ -77,7 +77,7 @@ class RoxTestListener implements \PHPUnit_Framework_TestListener {
 			}
 
 			// override/augment user config with project config
-			if ($projectConfig){
+			if ($projectConfig) {
 				$this->config = $this->overrideConfig($userConfig, $projectConfig);
 			}
 
@@ -161,34 +161,33 @@ class RoxTestListener implements \PHPUnit_Framework_TestListener {
 			} else {
 				throw new RoxClientException("ERROR: missing link for v1:test-payloads in $roxServerName response.");
 			}
-			
+
 			// load cache, if needed
-			if (isset($this->config['payload']['cache']) && $this->config['payload']['cache']){
-				if (!isset($this->config['workspace'])){
+			if (isset($this->config['payload']['cache']) && $this->config['payload']['cache']) {
+				if (!isset($this->config['workspace'])) {
 					throw new RoxClientException("ERROR: missing workspace in config files or environment variables. Can not locate cache.");
 				}
-				if (!isset($this->config['project']['apiId'])){
+				if (!isset($this->config['project']['apiId'])) {
 					throw new RoxClientException("ERROR: missing apiId for project in config files.");
 				}
 				$this->cache = array();
 				$cachePath = "{$this->config['workspace']}/phpunit/servers/{$this->config['server']}/cache.json";
-				if (file_exists($cachePath)){
+				if (file_exists($cachePath)) {
 					$cacheJson = file_get_contents($cachePath);
-					if (!$cacheJson){
+					if (!$cacheJson) {
 						throw new RoxClientException("ERROR: unable to read cache file ($cachePath)");
 					}
 					$cache = json_decode($cacheJson, true);
-					if (!$cache){
+					if (!$cache) {
 						throw new RoxClientException("ERROR: unable to decode JSON of cache file ($cachePath)");
 					}
-					if (isset($cache[$this->config['project']['apiId']]) && is_array($cache[$this->config['project']['apiId']])){
+					if (isset($cache[$this->config['project']['apiId']]) && is_array($cache[$this->config['project']['apiId']])) {
 						$this->cache = $cache[$this->config['project']['apiId']];
 					} else {
 						$this->roxClientLog .= "WARNING: no existing cache data for this project.\n";
 					}
 				}
 			}
-			var_dump($this->cache);
 
 			// init class properties
 			$this->testSuiteStartTime = intval(microtime(true) * 1000); // UNIX timestamp in ms
@@ -397,7 +396,7 @@ class RoxTestListener implements \PHPUnit_Framework_TestListener {
 
 						// set flags
 						$flag = $annotation->getFlags();
-						if ($flag > 0){
+						if ($flag > 0) {
 							$this->currentTest['f'] = $flag;
 						}
 
@@ -424,6 +423,7 @@ class RoxTestListener implements \PHPUnit_Framework_TestListener {
 							}
 						}
 						if (!empty($allTags)) {
+							sort($allTags);
 							$this->currentTest['g'] = $allTags;
 						}
 
@@ -442,7 +442,44 @@ class RoxTestListener implements \PHPUnit_Framework_TestListener {
 							}
 						}
 						if (!empty($allTickets)) {
+							sort($allTickets);
 							$this->currentTest['t'] = $allTickets;
+						}
+
+						// use cache, only if it is enabled
+						if ($this->config['payload']['cache']) {
+							// get previous hash if any
+							$oldHash = null;
+							if (isset($this->cache[$this->currentTest['k']])){
+								$oldHash = $this->cache[$this->currentTest['k']];
+							}
+							var_dump("old ".$oldHash."\n");
+							
+							// compute new hash
+							$hashContent = $this->currentTest['n']." || ";
+							if (isset($this->currentTest['c'])){
+								$hashContent .= $this->currentTest['c'];
+							}
+							$hashContent .= " || ";
+							if (isset($this->currentTest['g'])){
+								$hashContent .= implode(" ",$this->currentTest['g']);
+							}
+							$hashContent .= " || ";
+							if (isset($this->currentTest['t'])){
+								$hashContent .= implode(" ",$this->currentTest['t']);
+							}
+							$newHash = hash("sha256", $hashContent);
+							var_dump("new".$newHash."\n");
+							
+							if ($oldHash === $newHash){
+								unset($this->currentTest['n']);
+								unset($this->currentTest['c']);
+								unset($this->currentTest['g']);
+								unset($this->currentTest['t']);
+							} else {
+								$this->cache[$this->currentTest['k']] = $newHash;
+							}
+							var_dump($this->currentTest);
 						}
 					} catch (RoxClientException $e) {
 						$this->roxClientLog .= $e->getMessage() . "\n";
