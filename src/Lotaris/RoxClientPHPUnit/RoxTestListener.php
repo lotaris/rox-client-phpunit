@@ -181,8 +181,10 @@ class RoxTestListener implements \PHPUnit_Framework_TestListener {
 					if (!$cache){
 						throw new RoxClientException("ERROR: unable to decode JSON of cache file ($cachePath)");
 					}
-					if (is_array($cache[$this->config['project']['apiId']])){
+					if (isset($cache[$this->config['project']['apiId']]) && is_array($cache[$this->config['project']['apiId']])){
 						$this->cache = $cache[$this->config['project']['apiId']];
+					} else {
+						$this->roxClientLog .= "WARNING: no existing cache data for this project.\n";
 					}
 				}
 			}
