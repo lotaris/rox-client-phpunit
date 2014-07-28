@@ -30,6 +30,7 @@ class RoxTestListener implements \PHPUnit_Framework_TestListener {
 	private $currentTestSuite;
 	private $nbOfTests;
 	private $nbOfRoxableTests;
+	private $cache;
 
 	public function __construct($options = null) {
 		try {
@@ -76,7 +77,9 @@ class RoxTestListener implements \PHPUnit_Framework_TestListener {
 			}
 
 			// override/augment user config with project config
-			$this->config = $this->overrideConfig($userConfig, $projectConfig);
+			if ($projectConfig){
+				$this->config = $this->overrideConfig($userConfig, $projectConfig);
+			}
 
 			// override/augment config with ROX environment variables
 			if (getenv("ROX_SERVER")) {
@@ -157,6 +160,31 @@ class RoxTestListener implements \PHPUnit_Framework_TestListener {
 				$this->testsPayloadUrl = $roxRessources['_links']['v1:test-payloads']['href'];
 			} else {
 				throw new RoxClientException("ERROR: missing link for v1:test-payloads in $roxServerName response.");
+			}
+			
+			// load cache, if needed
+			if (isset($this->config['payload']['cache']) && $this->config['payload']['cache']){
+				if (!isset($this->config['workspace'])){
+					throw new RoxClientException("ERROR: missing workspace in config files or environment variables. Can not locate cache.");
+				}
+				if (!isset($this->config['project']['apiId'])){
+					throw new RoxClientException("ERROR: missing apiId for project in config files.");
+				}
+				$this->cache = array();
+				$cachePath = "{$this->config['workspace']}/phpunit/servers/{$this->config['server']}/cache.json";
+				if (file_exists($cachePath)){
+					$cacheJson = file_get_contents($cachePath);
+					if (!$cacheJson){
+						throw new RoxClientException("ERROR: unable to read cache file ($cachePath)");
+					}
+					$cache = json_decode($cacheJson, true);
+					if (!$cache){
+						throw new RoxClientException("ERROR: unable to decode JSON of cache file ($cachePath)");
+					}
+					if (is_array($cache[$this->config['project']['apiId']])){
+						$this->cache = $cache[$this->config['project']['apiId']];
+					}
+				}
 			}
 
 			// init class properties
