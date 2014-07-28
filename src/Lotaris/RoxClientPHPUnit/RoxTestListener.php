@@ -30,6 +30,7 @@ class RoxTestListener implements \PHPUnit_Framework_TestListener {
 	private $currentTestSuite;
 	private $nbOfTests;
 	private $nbOfRoxableTests;
+	private $cacheFile;
 	private $cache;
 
 	public function __construct($options = null) {
@@ -177,12 +178,12 @@ class RoxTestListener implements \PHPUnit_Framework_TestListener {
 					if (!$cacheJson) {
 						throw new RoxClientException("ERROR: unable to read cache file ($cachePath)");
 					}
-					$cache = json_decode($cacheJson, true);
-					if (!$cache) {
+					$this->cacheFile = json_decode($cacheJson, true);
+					if (!$this->cacheFile) {
 						throw new RoxClientException("ERROR: unable to decode JSON of cache file ($cachePath)");
 					}
-					if (isset($cache[$this->config['project']['apiId']]) && is_array($cache[$this->config['project']['apiId']])) {
-						$this->cache = $cache[$this->config['project']['apiId']];
+					if (isset($this->cacheFile[$this->config['project']['apiId']]) && is_array($this->cacheFile[$this->config['project']['apiId']])) {
+						$this->cache = $this->cacheFile[$this->config['project']['apiId']];
 					} else {
 						$this->roxClientLog .= "WARNING: no existing cache data for this project.\n";
 					}
@@ -313,6 +314,30 @@ class RoxTestListener implements \PHPUnit_Framework_TestListener {
 				$response = $request->send();
 				if ($response->getStatusCode() == 202) {
 					$this->roxClientLog .= "INFO {$this->nbOfRoxableTests} test results successfully sent to ROX center ({$this->testsPayloadUrl}) out of {$this->nbOfTests} tests.\n";
+
+					// save cache, if cache is used
+					if ($this->config['payload']['cache']) {
+						foreach ($this->cache as $key => $hash) {
+							$this->cacheFile[$this->config['project']['apiId']][$key] = $hash;
+						}
+						
+						var_dump($this->cache);
+						var_dump($this->cacheFile);
+						
+						$utf8cache = $this->convertEncoding($this->cacheFile, self::PAYLOAD_ENCODING);
+						$jsonCache = json_encode($utf8cache);
+						$cacheDirPath = "{$this->config['workspace']}/phpunit/servers/{$this->config['server']}";
+						if (!file_exists($cacheDirPath)) {
+							mkdir($cacheDirPath, 0755, true);
+						}
+						if (!file_put_contents($cacheDirPath . "/cache.json", $jsonCache)) {
+							throw new RoxClientException("ERROR unable to save cache in workspace");
+							
+						} else {
+							echo "CACHE SAVED!!!";
+						}
+						
+					}
 				} else {
 					$this->roxClientLog .= "ERROR ROX server ({$this->testsPayloadUrl}) returned an HTTP {$response->getStatusCode()} error:\n{$response->getBody(true)}\n";
 				}
@@ -450,28 +475,26 @@ class RoxTestListener implements \PHPUnit_Framework_TestListener {
 						if ($this->config['payload']['cache']) {
 							// get previous hash if any
 							$oldHash = null;
-							if (isset($this->cache[$this->currentTest['k']])){
+							if (isset($this->cache[$this->currentTest['k']])) {
 								$oldHash = $this->cache[$this->currentTest['k']];
 							}
-							var_dump("old ".$oldHash."\n");
-							
+
 							// compute new hash
-							$hashContent = $this->currentTest['n']." || ";
-							if (isset($this->currentTest['c'])){
+							$hashContent = $this->currentTest['n'] . " || ";
+							if (isset($this->currentTest['c'])) {
 								$hashContent .= $this->currentTest['c'];
 							}
 							$hashContent .= " || ";
-							if (isset($this->currentTest['g'])){
-								$hashContent .= implode(" ",$this->currentTest['g']);
+							if (isset($this->currentTest['g'])) {
+								$hashContent .= implode(" ", $this->currentTest['g']);
 							}
 							$hashContent .= " || ";
-							if (isset($this->currentTest['t'])){
-								$hashContent .= implode(" ",$this->currentTest['t']);
+							if (isset($this->currentTest['t'])) {
+								$hashContent .= implode(" ", $this->currentTest['t']);
 							}
 							$newHash = hash("sha256", $hashContent);
-							var_dump("new".$newHash."\n");
-							
-							if ($oldHash === $newHash){
+
+							if ($oldHash === $newHash) {
 								unset($this->currentTest['n']);
 								unset($this->currentTest['c']);
 								unset($this->currentTest['g']);
@@ -479,7 +502,6 @@ class RoxTestListener implements \PHPUnit_Framework_TestListener {
 							} else {
 								$this->cache[$this->currentTest['k']] = $newHash;
 							}
-							var_dump($this->currentTest);
 						}
 					} catch (RoxClientException $e) {
 						$this->roxClientLog .= $e->getMessage() . "\n";
