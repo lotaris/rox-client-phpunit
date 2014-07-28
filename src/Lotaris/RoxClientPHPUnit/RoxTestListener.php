@@ -105,6 +105,11 @@ class RoxTestListener implements \PHPUnit_Framework_TestListener {
 				$this->config['payload']['save'] = ($save == 1 || strtoupper($save) == "TRUE" || strtoupper($save) == "T");
 				$this->roxClientLog .= "WARNING: use environment variable instead of config files (ROX_SAVE_PAYLOAD=$save).\n";
 			}
+			if (getenv("ROX_CACHE_PAYLOAD")) {
+				$cache = getenv("ROX_CACHE_PAYLOAD");
+				$this->config['payload']['cache'] = ($cache == 1 || strtoupper($cache) == "TRUE" || strtoupper($cache) == "T");
+				$this->roxClientLog .= "WARNING: use environment variable instead of config files (ROX_CACHE_PAYLOAD=$cache).\n";
+			}
 			if (getenv("ROX_WORKSPACE")) {
 				$this->config['workspace'] = getenv("ROX_WORKSPACE");
 				$this->roxClientLog .= "WARNING: use environment variable instead of config files (ROX_WORKSPACE={$this->config['workspace']}).\n";
@@ -320,10 +325,6 @@ class RoxTestListener implements \PHPUnit_Framework_TestListener {
 						foreach ($this->cache as $key => $hash) {
 							$this->cacheFile[$this->config['project']['apiId']][$key] = $hash;
 						}
-						
-						var_dump($this->cache);
-						var_dump($this->cacheFile);
-						
 						$utf8cache = $this->convertEncoding($this->cacheFile, self::PAYLOAD_ENCODING);
 						$jsonCache = json_encode($utf8cache);
 						$cacheDirPath = "{$this->config['workspace']}/phpunit/servers/{$this->config['server']}";
@@ -332,11 +333,7 @@ class RoxTestListener implements \PHPUnit_Framework_TestListener {
 						}
 						if (!file_put_contents($cacheDirPath . "/cache.json", $jsonCache)) {
 							throw new RoxClientException("ERROR unable to save cache in workspace");
-							
-						} else {
-							echo "CACHE SAVED!!!";
 						}
-						
 					}
 				} else {
 					$this->roxClientLog .= "ERROR ROX server ({$this->testsPayloadUrl}) returned an HTTP {$response->getStatusCode()} error:\n{$response->getBody(true)}\n";
