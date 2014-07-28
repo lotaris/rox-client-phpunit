@@ -7,6 +7,7 @@ use Doctrine\Common\Annotations\AnnotationReader;
 use Symfony\Component\Yaml\Parser;
 use Symfony\Component\Yaml\Exception\ParseException;
 use Guzzle\Http\Client;
+use Guzzle\Common\Exception\GuzzleException;
 
 /**
  * This TestListener sends results to ROX Center at the end of each test suite.
@@ -160,7 +161,11 @@ class RoxTestListener implements \PHPUnit_Framework_TestListener {
 			$this->httpClient = new Client();
 			$this->httpClient->setDefaultOption('headers/Authorization', "RoxApiKey id=\"$roxApiKeyId\" secret=\"$roxApiKeySecret\"");
 			$request = $this->httpClient->get($roxServerUrl);
-			$response = $request->send();
+			try {
+				$response = $request->send();
+			} catch (GuzzleException $e) {
+				throw new RoxClientException("ERROR: Unable to contact ROX server: {$e->getMessage()}");
+			}
 			$roxRessources = json_decode($response->getBody(), true);
 			if (isset($roxRessources['_links']['v1:test-payloads']['href'])) {
 				$this->testsPayloadUrl = $roxRessources['_links']['v1:test-payloads']['href'];
@@ -316,7 +321,11 @@ class RoxTestListener implements \PHPUnit_Framework_TestListener {
 			if ($this->config['payload']['publish']) {
 				$jsonPayload = json_encode($utf8Payload);
 				$request = $this->httpClient->post($this->testsPayloadUrl, null, $jsonPayload, array("exceptions" => false));
-				$response = $request->send();
+				try {
+					$response = $request->send();
+				} catch (GuzzleException $e) {
+					throw new RoxClientException("ERROR: Unable to post results to ROX server: {$e->getMessage()}");
+				}
 				if ($response->getStatusCode() == 202) {
 					$this->roxClientLog .= "INFO {$this->nbOfRoxableTests} test results successfully sent to ROX center ({$this->testsPayloadUrl}) out of {$this->nbOfTests} tests.\n";
 
