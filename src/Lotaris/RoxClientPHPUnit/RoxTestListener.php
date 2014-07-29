@@ -88,7 +88,7 @@ class RoxTestListener implements \PHPUnit_Framework_TestListener {
 				$this->config['server'] = getenv("ROX_SERVER");
 				$this->roxClientLog .= "WARNING: use environment variable instead of config files (ROX_SERVER={$this->config['server']}).\n";
 			}
-			if (getenv("ROX_PUBLISH")) {
+			if (getenv("ROX_PUBLISH") !== false) {
 				$publish = getenv("ROX_PUBLISH");
 				$this->config['payload']['publish'] = ($publish == 1 || strtoupper($publish) == "TRUE" || strtoupper($publish) == "T");
 				$this->roxClientLog .= "WARNING: use environment variable instead of config files (ROX_PUBLISH=$publish).\n";
@@ -96,17 +96,17 @@ class RoxTestListener implements \PHPUnit_Framework_TestListener {
 				// default is true for this setting
 				$this->config['payload']['publish'] = true;
 			}
-			if (getenv("ROX_PRINT_PAYLOAD")) {
+			if (getenv("ROX_PRINT_PAYLOAD") !== false) {
 				$print = getenv("ROX_PRINT_PAYLOAD");
 				$this->config['payload']['print'] = ($print == 1 || strtoupper($print) == "TRUE" || strtoupper($print) == "T");
 				$this->roxClientLog .= "WARNING: use environment variable instead of config files (ROX_PRINT_PAYLOAD=$print).\n";
 			}
-			if (getenv("ROX_SAVE_PAYLOAD")) {
+			if (getenv("ROX_SAVE_PAYLOAD") !== false) {
 				$save = getenv("ROX_SAVE_PAYLOAD");
 				$this->config['payload']['save'] = ($save == 1 || strtoupper($save) == "TRUE" || strtoupper($save) == "T");
 				$this->roxClientLog .= "WARNING: use environment variable instead of config files (ROX_SAVE_PAYLOAD=$save).\n";
 			}
-			if (getenv("ROX_CACHE_PAYLOAD")) {
+			if (getenv("ROX_CACHE_PAYLOAD") !== false) {
 				$cache = getenv("ROX_CACHE_PAYLOAD");
 				$this->config['payload']['cache'] = ($cache == 1 || strtoupper($cache) == "TRUE" || strtoupper($cache) == "T");
 				$this->roxClientLog .= "WARNING: use environment variable instead of config files (ROX_CACHE_PAYLOAD=$cache).\n";
