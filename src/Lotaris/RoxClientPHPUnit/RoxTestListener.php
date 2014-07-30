@@ -43,7 +43,7 @@ class RoxTestListener implements \PHPUnit_Framework_TestListener {
 				$this->isVerbose = false;
 			}
 			if ($this->isVerbose) {
-				$this->roxClientLog = "INFO ROX client is verbose.\n";
+				$this->roxClientLog = "ROX - INFO ROX client is verbose.\n";
 			} else {
 				$this->roxClientLog = '';
 			}
@@ -54,12 +54,12 @@ class RoxTestListener implements \PHPUnit_Framework_TestListener {
 			} else if (isset($_SERVER['HOME'])) {
 				$home = $_SERVER['HOME'];
 			} else {
-				throw new RoxClientException("ERROR: No variables set for user home either with PHP \$_SERVER['HOME'], either with PHPunit TestListener arguments in phpunit.xml.dist");
+				throw new RoxClientException("ROX - ERROR: No variables set for user home either with PHP \$_SERVER['HOME'], either with PHPunit TestListener arguments in phpunit.xml.dist");
 			}
 			$userConfigFile = file_get_contents($home . '/.rox/config.yml');
 			$projectConfigFile = file_get_contents('rox.yml');
 			if ($userConfigFile === false && $projectConfigFile === false) {
-				throw new RoxClientException("ERROR: Unable to load both ROX user config file ($home/.rox/config.yml) and ROX project config file (<rojectRoot>/rox.yml).");
+				throw new RoxClientException("ROX - ERROR: Unable to load both ROX user config file ($home/.rox/config.yml) and ROX project config file (<rojectRoot>/rox.yml).");
 			}
 
 			// parse config files
@@ -75,7 +75,7 @@ class RoxTestListener implements \PHPUnit_Framework_TestListener {
 				$this->roxClientLog .= $e->getMessage() . "\n";
 			}
 			if (!isset($userConfig) && !isset($projectConfig)) {
-				throw new RoxClientException("ERROR: Unable to parse both ROX user config file ($home/.rox/config.yml) and ROX project config file (<rojectRoot>/rox.yml).");
+				throw new RoxClientException("ROX - ERROR: Unable to parse both ROX user config file ($home/.rox/config.yml) and ROX project config file (<rojectRoot>/rox.yml).");
 			}
 
 			// override/augment user config with project config
@@ -86,12 +86,12 @@ class RoxTestListener implements \PHPUnit_Framework_TestListener {
 			// override/augment config with ROX environment variables
 			if (getenv("ROX_SERVER")) {
 				$this->config['server'] = getenv("ROX_SERVER");
-				$this->roxClientLog .= "WARNING: use environment variable instead of config files (ROX_SERVER={$this->config['server']}).\n";
+				$this->roxClientLog .= "ROX - WARNING: use environment variable instead of config files (ROX_SERVER={$this->config['server']}).\n";
 			}
 			if (getenv("ROX_PUBLISH") !== false) {
 				$publish = getenv("ROX_PUBLISH");
 				$this->config['payload']['publish'] = ($publish == 1 || strtoupper($publish) == "TRUE" || strtoupper($publish) == "T");
-				$this->roxClientLog .= "WARNING: use environment variable instead of config files (ROX_PUBLISH=$publish).\n";
+				$this->roxClientLog .= "ROX - WARNING: use environment variable instead of config files (ROX_PUBLISH=$publish).\n";
 			} else {
 				// default is true for this setting
 				$this->config['payload']['publish'] = true;
@@ -99,21 +99,21 @@ class RoxTestListener implements \PHPUnit_Framework_TestListener {
 			if (getenv("ROX_PRINT_PAYLOAD") !== false) {
 				$print = getenv("ROX_PRINT_PAYLOAD");
 				$this->config['payload']['print'] = ($print == 1 || strtoupper($print) == "TRUE" || strtoupper($print) == "T");
-				$this->roxClientLog .= "WARNING: use environment variable instead of config files (ROX_PRINT_PAYLOAD=$print).\n";
+				$this->roxClientLog .= "ROX - WARNING: use environment variable instead of config files (ROX_PRINT_PAYLOAD=$print).\n";
 			}
 			if (getenv("ROX_SAVE_PAYLOAD") !== false) {
 				$save = getenv("ROX_SAVE_PAYLOAD");
 				$this->config['payload']['save'] = ($save == 1 || strtoupper($save) == "TRUE" || strtoupper($save) == "T");
-				$this->roxClientLog .= "WARNING: use environment variable instead of config files (ROX_SAVE_PAYLOAD=$save).\n";
+				$this->roxClientLog .= "ROX - WARNING: use environment variable instead of config files (ROX_SAVE_PAYLOAD=$save).\n";
 			}
 			if (getenv("ROX_CACHE_PAYLOAD") !== false) {
 				$cache = getenv("ROX_CACHE_PAYLOAD");
 				$this->config['payload']['cache'] = ($cache == 1 || strtoupper($cache) == "TRUE" || strtoupper($cache) == "T");
-				$this->roxClientLog .= "WARNING: use environment variable instead of config files (ROX_CACHE_PAYLOAD=$cache).\n";
+				$this->roxClientLog .= "ROX - WARNING: use environment variable instead of config files (ROX_CACHE_PAYLOAD=$cache).\n";
 			}
 			if (getenv("ROX_WORKSPACE")) {
 				$this->config['workspace'] = getenv("ROX_WORKSPACE");
-				$this->roxClientLog .= "WARNING: use environment variable instead of config files (ROX_WORKSPACE={$this->config['workspace']}).\n";
+				$this->roxClientLog .= "ROX - WARNING: use environment variable instead of config files (ROX_WORKSPACE={$this->config['workspace']}).\n";
 			}
 			if (getenv("ROX_TEST_RUN_UID")) {
 				$this->testsRunUid = getenv("ROX_TEST_RUN_UID");
@@ -122,7 +122,7 @@ class RoxTestListener implements \PHPUnit_Framework_TestListener {
 				if ($uid) {
 					$this->testsRunUid = $uid;
 				} else {
-					throw new RoxClientException("ERROR: A UID file exist in workspace, but it cannot be read.");
+					throw new RoxClientException("ROX - ERROR: A UID file exist in workspace, but it cannot be read.");
 				}
 			} else {
 				$this->testsRunUid = Uuid::uuid4()->toString();
@@ -132,29 +132,29 @@ class RoxTestListener implements \PHPUnit_Framework_TestListener {
 			if (isset($this->config['server'])) {
 				$roxServerName = $this->config['server'];
 			} else {
-				throw new RoxClientException("ERROR: no ROX server defined either by environment variable, either by config files.");
+				throw new RoxClientException("ROX - ERROR: no ROX server defined either by environment variable, either by config files.");
 			}
 
 			// get server root URL
 			if (isset($this->config['servers'][$roxServerName]['apiUrl'])) {
 				$roxServerUrl = $this->config['servers'][$roxServerName]['apiUrl'];
 				if (!filter_var($roxServerUrl, FILTER_VALIDATE_URL)) {
-					throw new RoxClientException("ERROR: invalid url for $roxServerName ($roxServerUrl)");
+					throw new RoxClientException("ROX - ERROR: invalid url for $roxServerName ($roxServerUrl)");
 				}
 			} else {
-				throw new RoxClientException("ERROR: no apiUrl found for $roxServerName.");
+				throw new RoxClientException("ROX - ERROR: no apiUrl found for $roxServerName.");
 			}
 
 			// get server credentials
 			if (isset($this->config['servers'][$roxServerName]['apiKeyId'])) {
 				$roxApiKeyId = $this->config['servers'][$roxServerName]['apiKeyId'];
 			} else {
-				throw new RoxClientException("ERROR: missing apiKeyId for $roxServerName.");
+				throw new RoxClientException("ROX - ERROR: missing apiKeyId for $roxServerName.");
 			}
 			if (isset($this->config['servers'][$roxServerName]['apiKeySecret'])) {
 				$roxApiKeySecret = $this->config['servers'][$roxServerName]['apiKeySecret'];
 			} else {
-				throw new RoxClientException("ERROR: missing apiKeySecret for $roxServerName.");
+				throw new RoxClientException("ROX - ERROR: missing apiKeySecret for $roxServerName.");
 			}
 
 			// get payload v1 links from ROX root URL
@@ -164,38 +164,38 @@ class RoxTestListener implements \PHPUnit_Framework_TestListener {
 			try {
 				$response = $request->send();
 			} catch (GuzzleException $e) {
-				throw new RoxClientException("ERROR: Unable to contact ROX server: {$e->getMessage()}");
+				throw new RoxClientException("ROX - ERROR: Unable to contact ROX server: {$e->getMessage()}");
 			}
 			$roxRessources = json_decode($response->getBody(), true);
 			if (isset($roxRessources['_links']['v1:test-payloads']['href'])) {
 				$this->testsPayloadUrl = $roxRessources['_links']['v1:test-payloads']['href'];
 			} else {
-				throw new RoxClientException("ERROR: missing link for v1:test-payloads in $roxServerName response.");
+				throw new RoxClientException("ROX - ERROR: missing link for v1:test-payloads in $roxServerName response.");
 			}
 
 			// load cache, if needed
 			if (isset($this->config['payload']['cache']) && $this->config['payload']['cache']) {
 				if (!isset($this->config['workspace'])) {
-					throw new RoxClientException("ERROR: missing workspace in config files or environment variables. Can not locate cache.");
+					throw new RoxClientException("ROX - ERROR: missing workspace in config files or environment variables. Can not locate cache.");
 				}
 				if (!isset($this->config['project']['apiId'])) {
-					throw new RoxClientException("ERROR: missing apiId for project in config files.");
+					throw new RoxClientException("ROX - ERROR: missing apiId for project in config files.");
 				}
 				$this->cache = array();
 				$cachePath = "{$this->config['workspace']}/phpunit/servers/{$this->config['server']}/cache.json";
 				if (file_exists($cachePath)) {
 					$cacheJson = file_get_contents($cachePath);
 					if (!$cacheJson) {
-						throw new RoxClientException("ERROR: unable to read cache file ($cachePath)");
+						throw new RoxClientException("ROX - ERROR: unable to read cache file ($cachePath)");
 					}
 					$this->cacheFile = json_decode($cacheJson, true);
 					if (!$this->cacheFile) {
-						throw new RoxClientException("ERROR: unable to decode JSON of cache file ($cachePath)");
+						throw new RoxClientException("ROX - ERROR: unable to decode JSON of cache file ($cachePath)");
 					}
 					if (isset($this->cacheFile[$this->config['project']['apiId']]) && is_array($this->cacheFile[$this->config['project']['apiId']])) {
 						$this->cache = $this->cacheFile[$this->config['project']['apiId']];
 					} else {
-						$this->roxClientLog .= "WARNING: no existing cache data for this project.\n";
+						$this->roxClientLog .= "ROX - WARNING: no existing cache data for this project.\n";
 					}
 				}
 			}
@@ -266,19 +266,19 @@ class RoxTestListener implements \PHPUnit_Framework_TestListener {
 			// check message length and truncate it if needed
 			if (isset($this->currentTest['m']) && strlen(mb_convert_encoding($this->currentTest['m'], self::PAYLOAD_ENCODING)) > self::ERROR_MESSAGE_MAX_LENGTH) {
 				$this->currentTest['m'] = mb_substr($this->currentTest['m'], 0, self::ERROR_MESSAGE_MAX_LENGTH, self::PAYLOAD_ENCODING);
-				$this->roxClientLog .= "WARNING some error messages were truncated.\n";
+				$this->roxClientLog .= "ROX - WARNING some error messages were truncated.\n";
 			}
 
 			// add test results to test suite
 			array_push($this->currentTestSuite, $this->currentTest);
 		} else if ($this->isVerbose) {
-			$this->roxClientLog .= "WARNING test {$test->getName()} is not roxable.\n";
+			$this->roxClientLog .= "ROX - WARNING test {$test->getName()} is not roxable.\n";
 		}
 	}
 
 	public function endTestSuite(\PHPUnit_Framework_TestSuite $suite) {
 		if (RoxClientException::exceptionOccured()) {
-			$this->roxClientLog .= "WARNING RESULTS WERE NOT SENT TO ROX CENTER.\nThis is due to previously logged errors.\n";
+			$this->roxClientLog .= "ROX - WARNING RESULTS WERE NOT SENT TO ROX CENTER.\nThis is due to previously logged errors.\n";
 			return;
 		} else if (empty($this->currentTestSuite)) {
 			// nothing to do
@@ -301,14 +301,14 @@ class RoxTestListener implements \PHPUnit_Framework_TestListener {
 			if (isset($this->config['project']['apiId'])) {
 				$payload['r'][0]['j'] = $this->config['project']['apiId'];
 			} else {
-				throw new RoxClientException("ERROR missing apiId for project in config files.");
+				throw new RoxClientException("ROX - ERROR missing apiId for project in config files.");
 			}
 
 			// set project version
 			if (isset($this->config['project']['version'])) {
 				$payload['r'][0]['v'] = $this->config['project']['version'];
 			} else {
-				throw new RoxClientException("ERROR missing version for project in config files.");
+				throw new RoxClientException("ROX - ERROR missing version for project in config files.");
 			}
 
 			// set test results
@@ -324,10 +324,10 @@ class RoxTestListener implements \PHPUnit_Framework_TestListener {
 				try {
 					$response = $request->send();
 				} catch (GuzzleException $e) {
-					throw new RoxClientException("ERROR: Unable to post results to ROX server: {$e->getMessage()}");
+					throw new RoxClientException("ROX - ERROR: Unable to post results to ROX server: {$e->getMessage()}");
 				}
 				if ($response->getStatusCode() == 202) {
-					$this->roxClientLog .= "INFO {$this->nbOfRoxableTests} test results successfully sent to ROX center ({$this->testsPayloadUrl}) out of {$this->nbOfTests} tests.\n";
+					$this->roxClientLog .= "ROX - INFO {$this->nbOfRoxableTests} test results successfully sent to ROX center ({$this->config['servers'][$this->config['server']]['apiUrl']}) out of {$this->nbOfTests} tests in {$suite->getName()}.\n";
 
 					// save cache, if cache is used
 					if ($this->config['payload']['cache']) {
@@ -341,29 +341,29 @@ class RoxTestListener implements \PHPUnit_Framework_TestListener {
 							mkdir($cacheDirPath, 0755, true);
 						}
 						if (!file_put_contents($cacheDirPath . "/cache.json", $jsonCache)) {
-							throw new RoxClientException("ERROR unable to save cache in workspace");
+							throw new RoxClientException("ROX - ERROR unable to save cache in workspace");
 						}
 					}
 				} else {
-					$this->roxClientLog .= "ERROR ROX server ({$this->testsPayloadUrl}) returned an HTTP {$response->getStatusCode()} error:\n{$response->getBody(true)}\n";
+					$this->roxClientLog .= "ROX - ERROR ROX server ({$this->testsPayloadUrl}) returned an HTTP {$response->getStatusCode()} error:\n{$response->getBody(true)}\n";
 				}
 			} else {
-				$this->roxClientLog .= "WARNING RESULTS WERE NOT SENT TO ROX CENTER.\nThis is due to 'publish' parameters in config file or to ROX_PUBLISH environment variable.\n";
+				$this->roxClientLog .= "ROX - WARNING RESULTS WERE NOT SENT TO ROX CENTER.\nThis is due to 'publish' parameters in config file or to ROX_PUBLISH environment variable.\n";
 			}
 
 			// save payload
 			if (isset($this->config['payload']['save']) && $this->config['payload']['save']) {
 				if (!isset($this->config['workspace'])) {
-					throw new RoxClientException("ERROR no 'workspace' parameter in config files. Could not save payload.");
+					throw new RoxClientException("ROX - ERROR no 'workspace' parameter in config files. Could not save payload.");
 				}
 				$payloadDirPath = "{$this->config['workspace']}/phpunit/servers/{$this->config['server']}";
 				if (!file_exists($payloadDirPath)) {
 					mkdir($payloadDirPath, 0755, true);
 				}
 				if (file_put_contents($payloadDirPath . "/payload.json", $jsonPayload)) {
-					$this->roxClientLog .= "INFO payload saved in workspace.\n";
+					$this->roxClientLog .= "ROX - INFO payload saved in workspace.\n";
 				} else {
-					throw new RoxClientException("ERROR unable to save payload in workspace");
+					throw new RoxClientException("ROX - ERROR unable to save payload in workspace");
 				}
 			}
 
@@ -371,7 +371,7 @@ class RoxTestListener implements \PHPUnit_Framework_TestListener {
 			if (isset($this->config['payload']['print']) && $this->config['payload']['print']) {
 				$jsonPretty = new \Camspiers\JsonPretty\JsonPretty;
 				$jsonPrettyPayload = $jsonPretty->prettify($utf8Payload);
-				$this->roxClientLog .= "DEBUG generated JSON payload:\n$jsonPrettyPayload\n";
+				$this->roxClientLog .= "ROX - DEBUG generated JSON payload:\n$jsonPrettyPayload\n";
 			}
 		} catch (RoxClientException $e) {
 			$this->roxClientLog .= $e->getMessage() . "\n";
