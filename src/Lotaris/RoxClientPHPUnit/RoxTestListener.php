@@ -33,6 +33,7 @@ class RoxTestListener implements \PHPUnit_Framework_TestListener {
 	private $nbOfRoxableTests;
 	private $cacheFile;
 	private $cache;
+	private $nbOfPayloadsSent;
 
 	public function __construct($options = null) {
 		try {
@@ -203,6 +204,7 @@ class RoxTestListener implements \PHPUnit_Framework_TestListener {
 			// init class properties
 			$this->testSuiteStartTime = intval(microtime(true) * 1000); // UNIX timestamp in ms
 			$this->annotationReader = new AnnotationReader();
+			$this->nbOfPayloadsSent = 0;
 		} catch (RoxClientException $e) {
 			$this->roxClientLog .= $e->getMessage() . "\n";
 		} catch (Exception $e) {
@@ -327,7 +329,10 @@ class RoxTestListener implements \PHPUnit_Framework_TestListener {
 					throw new RoxClientException("ROX - ERROR: Unable to post results to ROX server: {$e->getMessage()}");
 				}
 				if ($response->getStatusCode() == 202) {
-					$this->roxClientLog .= "ROX - INFO {$this->nbOfRoxableTests} test results successfully sent to ROX center ({$this->config['servers'][$this->config['server']]['apiUrl']}) out of {$this->nbOfTests} tests in {$suite->getName()}.\n";
+					$this->nbOfPayloadsSent += 1;
+					$coverageRatio = $this->nbOfRoxableTests / $this->nbOfTests;
+					$formatter = new NumberFormatter(locale_get_default(), NumberFormatter::PERCENT);
+					$this->roxClientLog .= "ROX - INFO {$this->nbOfRoxableTests} test results successfully sent (payload {$this->nbOfPayloadsSent}) to ROX center ({$this->config['servers'][$this->config['server']]['apiUrl']}) out of {$this->nbOfTests} ({$formatter->format($coverageRatio)}) tests in {$suite->getName()}.\n";
 
 					// save cache, if cache is used
 					if ($this->config['payload']['cache']) {
@@ -373,7 +378,7 @@ class RoxTestListener implements \PHPUnit_Framework_TestListener {
 				$jsonPrettyPayload = $jsonPretty->prettify($utf8Payload);
 				$this->roxClientLog .= "ROX - DEBUG generated JSON payload:\n$jsonPrettyPayload\n";
 			}
-			
+
 			// empty currentTestSuite to avoid double transmission of it.
 			$this->currentTestSuite = null;
 		} catch (RoxClientException $e) {
