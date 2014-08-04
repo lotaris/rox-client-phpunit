@@ -331,7 +331,7 @@ class RoxTestListener implements \PHPUnit_Framework_TestListener {
 				if ($response->getStatusCode() == 202) {
 					$this->nbOfPayloadsSent += 1;
 					$coverageRatio = $this->nbOfRoxableTests / $this->nbOfTests;
-					$formatter = new NumberFormatter(locale_get_default(), NumberFormatter::PERCENT);
+					$formatter = new \NumberFormatter(locale_get_default(), \NumberFormatter::PERCENT);
 					$this->roxClientLog .= "ROX - INFO {$this->nbOfRoxableTests} test results successfully sent (payload {$this->nbOfPayloadsSent}) to ROX center ({$this->config['servers'][$this->config['server']]['apiUrl']}) out of {$this->nbOfTests} ({$formatter->format($coverageRatio)}) tests in {$suite->getName()}.\n";
 
 					// save cache, if cache is used
