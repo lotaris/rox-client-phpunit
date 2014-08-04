@@ -277,6 +277,8 @@ class RoxTestListener implements \PHPUnit_Framework_TestListener {
 	}
 
 	public function endTestSuite(\PHPUnit_Framework_TestSuite $suite) {
+		var_dump($suite);
+		
 		if (RoxClientException::exceptionOccured()) {
 			$this->roxClientLog .= "ROX - WARNING RESULTS WERE NOT SENT TO ROX CENTER.\nThis is due to previously logged errors.\n";
 			return;
@@ -518,6 +520,8 @@ class RoxTestListener implements \PHPUnit_Framework_TestListener {
 	}
 
 	public function startTestSuite(\PHPUnit_Framework_TestSuite $suite) {
+		var_dump("start " + $suite->getName());
+		
 		$this->currentTestSuite = array();
 		$this->nbOfRoxableTests = 0;
 		$this->nbOfTests = 0;
