@@ -373,6 +373,9 @@ class RoxTestListener implements \PHPUnit_Framework_TestListener {
 				$jsonPrettyPayload = $jsonPretty->prettify($utf8Payload);
 				$this->roxClientLog .= "ROX - DEBUG generated JSON payload:\n$jsonPrettyPayload\n";
 			}
+			
+			// empty currentTestSuite to avoid double transmission of it.
+			$this->currentTestSuite = null;
 		} catch (RoxClientException $e) {
 			$this->roxClientLog .= $e->getMessage() . "\n";
 		}
@@ -518,8 +521,6 @@ class RoxTestListener implements \PHPUnit_Framework_TestListener {
 	}
 
 	public function startTestSuite(\PHPUnit_Framework_TestSuite $suite) {
-		var_dump("start ".$suite->getName());
-		
 		$this->currentTestSuite = array();
 		$this->nbOfRoxableTests = 0;
 		$this->nbOfTests = 0;
