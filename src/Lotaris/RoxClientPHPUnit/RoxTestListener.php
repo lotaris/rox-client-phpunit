@@ -205,6 +205,9 @@ class RoxTestListener implements \PHPUnit_Framework_TestListener {
 			$this->testSuiteStartTime = intval(microtime(true) * 1000); // UNIX timestamp in ms
 			$this->annotationReader = new AnnotationReader();
 			$this->nbOfPayloadsSent = 0;
+			
+			// log info
+			$this->roxClientLog .= "ROX INFO: Sending results to ROX center ({$this->config['servers'][$this->config['server']]['apiUrl']})";
 		} catch (RoxClientException $e) {
 			$this->roxClientLog .= $e->getMessage() . "\n";
 		} catch (Exception $e) {
@@ -332,7 +335,7 @@ class RoxTestListener implements \PHPUnit_Framework_TestListener {
 					$this->nbOfPayloadsSent += 1;
 					$coverageRatio = $this->nbOfRoxableTests / $this->nbOfTests;
 					$formatter = new \NumberFormatter(locale_get_default(), \NumberFormatter::PERCENT);
-					$this->roxClientLog .= "ROX - INFO {$this->nbOfRoxableTests} test results successfully sent (payload {$this->nbOfPayloadsSent}) to ROX center ({$this->config['servers'][$this->config['server']]['apiUrl']}) out of {$this->nbOfTests} ({$formatter->format($coverageRatio)}) tests in {$suite->getName()}.\n";
+					$this->roxClientLog .= "ROX - INFO {$this->nbOfRoxableTests} test results successfully sent (payload {$this->nbOfPayloadsSent}) out of {$this->nbOfTests} ({$formatter->format($coverageRatio)}) tests in {$suite->getName()}.\n";
 
 					// save cache, if cache is used
 					if ($this->config['payload']['cache']) {
