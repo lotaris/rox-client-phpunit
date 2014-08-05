@@ -207,7 +207,7 @@ class RoxTestListener implements \PHPUnit_Framework_TestListener {
 			$this->nbOfPayloadsSent = 0;
 			
 			// log info
-			$this->roxClientLog .= "ROX - INFO Sending results to ROX Center ({$this->config['servers'][$this->config['server']]['apiUrl']})\n";
+			$this->roxClientLog .= "ROX - INFO ROX Center API: {$this->config['servers'][$this->config['server']]['apiUrl']}\n";
 		} catch (RoxClientException $e) {
 			$this->roxClientLog .= $e->getMessage() . "\n";
 		} catch (Exception $e) {
