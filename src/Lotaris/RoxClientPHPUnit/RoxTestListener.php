@@ -569,9 +569,10 @@ class RoxTestListener implements \PHPUnit_Framework_TestListener {
 			array_shift($trace);
 		}
 		$result = join("\n", $result);
-		if ($prev)
-			$result .= "\n" . jTraceEx($prev, $seen);
-
+		if ($prev) {
+			$result .= "\n" . $this->jTraceEx($prev, $seen);
+		}
+		
 		return $result;
 	}
 
